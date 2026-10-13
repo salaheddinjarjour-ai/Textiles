@@ -1,0 +1,17 @@
+"use server";
+
+import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { LOCALE_COOKIE, isLocale } from "./config";
+
+export async function setLocale(locale: string) {
+  if (!isLocale(locale)) return;
+  const store = await cookies();
+  store.set(LOCALE_COOKIE, locale, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+  // Re-render the whole tree so <html dir/lang> and all text update.
+  revalidatePath("/", "layout");
+}
